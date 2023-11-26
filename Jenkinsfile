@@ -62,9 +62,9 @@ def packerBuild(awsAccessKeyIdCredentialId,awsRegionCredentialId) {
         withCredentials([
             [
                 $class: 'AmazonWebServicesCredentialsBinding',
-                accessKeyVariable: 'AWS_ACCESS_KEY_ID',
                 credentialsId: awsAccessKeyIdCredentialId,
-                secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
+                usernameVariable: 'AWS_ACCESS_KEY',
+                passwordVariable: 'AWS_SECRET_KEY'
             ]
         ]) {
             script {
