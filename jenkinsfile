@@ -1,10 +1,11 @@
 pipeline {
-    agent {
-        docker {
-            image 'hashicorp/packer'
-            args '-v $HOME/.packer.d:/root/.packer.d'
-        }
+ agent {
+    dockerfile {
+        filename 'Dockerfile'
+        dir '.'
+        args '--entrypoint=\'\' -v /var/run/docker.sock:/var/run/docker.sock'
     }
+  }
 
     stages {
         stage('Format Packer Configuration') {
