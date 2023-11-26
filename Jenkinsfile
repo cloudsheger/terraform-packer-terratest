@@ -69,11 +69,10 @@ def packerBuild(awsAccessKeyIdCredentialId,awsRegionCredentialId) {
         ]) {
             script {
                 sh """
-                    packer build \
-                    -var 'aws_access_key=${AWS_ACCESS_KEY_ID}' \
-                    -var 'aws_secret_key=${AWS_SECRET_ACCESS_KEY}' \
-                    -var 'aws_region=${AWS_REGION}' \
-                    -only=ubuntu-ami build.json.pkr.hcl
+                    aws configure set aws_access_key_id "${AWS_ACCESS_KEY}"
+                    aws configure set aws_secret_access_key "${AWS_SECRET_KEY}"
+                    aws configure set default.region "${awsRegionCredentialId}"
+                    packer build -only=ubuntu-ami build.json.pkr.hcl
                 """
             }
         }
