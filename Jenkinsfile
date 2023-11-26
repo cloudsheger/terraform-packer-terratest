@@ -12,11 +12,7 @@ pipeline {
             steps {
                 dir('packer') {
                     script {
-                        try {
-                            sh 'packer fmt build.json'
-                        } catch (Exception e) {
-                            error "Failed to format build.json. ${e.getMessage()}"
-                        }
+                        sh 'packer inspect build.json'
                     }
                 }
             }
@@ -26,11 +22,7 @@ pipeline {
             steps {
                 dir('packer') {
                     script {
-                        try {
-                            sh 'packer validate build.json'
-                        } catch (Exception e) {
-                            error "Failed to validate build.json. ${e.getMessage()}"
-                        }
+                        sh 'packer validate build.json'
                     }
                 }
             }
@@ -48,11 +40,7 @@ pipeline {
                 ]) {
                     dir('packer') {
                         script {
-                            try {
-                                sh 'packer build -var "aws_access_key=${AWS_ACCESS_KEY_ID}" -var "aws_secret_key=${AWS_SECRET_ACCESS_KEY}" -only=ubuntu-ami build.json'
-                            } catch (Exception e) {
-                                error "Failed to build AMI. ${e.getMessage()}"
-                            }
+                            sh 'packer build -var "aws_access_key=${AWS_ACCESS_KEY_ID}" -var "aws_secret_key=${AWS_SECRET_ACCESS_KEY}" -only=ubuntu-ami build.json'
                         }
                     }
                 }
