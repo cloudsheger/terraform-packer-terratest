@@ -40,20 +40,7 @@ pipeline {
 
         stage('Build AMI') {
             steps {
-                withCredentials([
-                    [
-                        $class: 'AmazonWebServicesCredentialsBinding',
-                        accessKeyVariable: 'AWS_ACCESS_KEY_ID',
-                        credentialsId: 'AWSCRED',
-                        secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
-                    ]
-                ]) {
-                    dir('packer') {
-                        script {
-                            sh 'packer build -var "aws_access_key=${AWS_ACCESS_KEY_ID}" -var "aws_secret_key=${AWS_SECRET_ACCESS_KEY}" -only=ubuntu-ami build.json.pkr.hcl'
-                        }
-                    }
-                }
+                packerBuild('AWS_ACCESS_KEY_ID', 'AWS_SECRET_ACCESS_KEY', 'AWS_REGION')
             }
         }
     }
@@ -64,6 +51,37 @@ pipeline {
         }
         failure {
             error 'Packer commands failed!'
+        }
+    }
+}
+
+
+
+def packerBuild(awsAccessKeyIdCredentialId, awsSecretAccessKeyCredentialId, awsRegionCredentialId) {
+    dir('packer') {
+        withCredentials([
+            [
+                $class: 'AmazonWebServicesCredentialsBinding',
+                accessKeyVariable: 'AWS_ACCESS_KEY_ID',
+                credentialsId: awsAccessKeyIdCredentialId,
+                secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
+            ],
+            [
+                $class: 'AmazonWebServicesCredentialsBinding',
+                accessKeyVariable: 'AWS_REGION',
+                credentialsId: awsRegionCredentialId,
+                secretKeyVariable: 'AWS_S3_BUCKET'
+            ]
+        ]) {
+            script {
+                sh """
+                    packer build \
+                    -var 'aws_access_key=${AWS_ACCESS_KEY_ID}' \
+                    -var 'aws_secret_key=${AWS_SECRET_ACCESS_KEY}' \
+                    -var 'aws_region=${AWS_REGION}' \
+                    -only=ubuntu-ami build.json.pkr.hcl
+                """
+            }
         }
     }
 }
