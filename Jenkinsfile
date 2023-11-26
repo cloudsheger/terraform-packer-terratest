@@ -40,7 +40,7 @@ pipeline {
 
         stage('Build AMI') {
             steps {
-                packerBuild('AWS_ACCESS_KEY_ID', 'AWS_SECRET_ACCESS_KEY', 'AWS_REGION')
+                packerBuild('AWS_CREDENTIAL_IDS', 'AWS_REGION')
             }
         }
     }
@@ -57,7 +57,7 @@ pipeline {
 
 
 
-def packerBuild(awsAccessKeyIdCredentialId, awsSecretAccessKeyCredentialId, awsRegionCredentialId) {
+def packerBuild(awsAccessKeyIdCredentialId,awsRegionCredentialId) {
     dir('packer') {
         withCredentials([
             [
@@ -65,12 +65,6 @@ def packerBuild(awsAccessKeyIdCredentialId, awsSecretAccessKeyCredentialId, awsR
                 accessKeyVariable: 'AWS_ACCESS_KEY_ID',
                 credentialsId: awsAccessKeyIdCredentialId,
                 secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
-            ],
-            [
-                $class: 'AmazonWebServicesCredentialsBinding',
-                accessKeyVariable: 'AWS_REGION',
-                credentialsId: awsRegionCredentialId,
-                secretKeyVariable: 'AWS_S3_BUCKET'
             ]
         ]) {
             script {
