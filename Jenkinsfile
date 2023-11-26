@@ -8,11 +8,21 @@ pipeline {
     }
 
     stages {
+        stage('Initialize Packer') {
+            steps {
+                dir('packer') {
+                    script {
+                        sh 'packer init build.json.pkr.hcl'
+                    }
+                }
+            }
+        }
+
         stage('Format Packer Configuration') {
             steps {
                 dir('packer') {
                     script {
-                        sh 'packer inspect build.json'
+                        sh 'packer fmt build.json.pkr.hcl'
                     }
                 }
             }
@@ -22,7 +32,7 @@ pipeline {
             steps {
                 dir('packer') {
                     script {
-                        sh 'packer validate build.json'
+                        sh 'packer fmt -check=true -diff=true build.json.pkr.hcl && packer validate build.json.pkr.hcl'
                     }
                 }
             }
@@ -40,7 +50,7 @@ pipeline {
                 ]) {
                     dir('packer') {
                         script {
-                            sh 'packer build -var "aws_access_key=${AWS_ACCESS_KEY_ID}" -var "aws_secret_key=${AWS_SECRET_ACCESS_KEY}" -only=ubuntu-ami build.json'
+                            sh 'packer build -var "aws_access_key=${AWS_ACCESS_KEY_ID}" -var "aws_secret_key=${AWS_SECRET_ACCESS_KEY}" -only=ubuntu-ami build.json.pkr.hcl'
                         }
                     }
                 }
