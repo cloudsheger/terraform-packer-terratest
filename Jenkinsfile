@@ -10,37 +10,25 @@ pipeline {
     stages {
         stage('Initialize Packer') {
             steps {
-                dir('packer') {
-                    script {
-                        sh 'packer init build.json.pkr.hcl'
-                    }
-                }
+                initializePacker()
             }
         }
 
         stage('Format Packer Configuration') {
             steps {
-                dir('packer') {
-                    script {
-                        sh 'packer fmt build.json.pkr.hcl'
-                    }
-                }
+                formatPackerConfiguration()
             }
         }
 
         stage('Validate Packer Configuration') {
             steps {
-                dir('packer') {
-                    script {
-                        sh 'packer fmt -check=true -diff=true build.json.pkr.hcl && packer validate build.json.pkr.hcl'
-                    }
-                }
+                validatePackerConfiguration()
             }
         }
 
         stage('Build AMI') {
             steps {
-                packerBuild('AWS_CREDENTIAL_IDS', 'AWS_REGION')
+                buildAMI('AWS_CREDENTIAL_IDS', 'AWS_REGION')
             }
         }
     }
@@ -55,9 +43,31 @@ pipeline {
     }
 }
 
+def initializePacker() {
+    dir('packer') {
+        script {
+            sh 'packer init build.json.pkr.hcl'
+        }
+    }
+}
 
+def formatPackerConfiguration() {
+    dir('packer') {
+        script {
+            sh 'packer fmt build.json.pkr.hcl'
+        }
+    }
+}
 
-def packerBuild(awsAccessKeyIdCredentialId, awsRegionCredentialId) {
+def validatePackerConfiguration() {
+    dir('packer') {
+        script {
+            sh 'packer fmt -check=true -diff=true build.json.pkr.hcl && packer validate build.json.pkr.hcl'
+        }
+    }
+}
+
+def buildAMI(awsAccessKeyIdCredentialId, awsRegionCredentialId) {
     dir('packer') {
         withCredentials([
             [
@@ -78,4 +88,3 @@ def packerBuild(awsAccessKeyIdCredentialId, awsRegionCredentialId) {
         }
     }
 }
-
