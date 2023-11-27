@@ -46,19 +46,9 @@ pipeline {
 def initializePacker() {
     dir('packer') {
         script {
-            def packerConfigFile = 'build.json.pkr.hcl'
-
-            if (!fileExists(packerConfigFile)) {
-                error "Packer configuration file '${packerConfigFile}' not found."
-            }
-
-            sh "packer init ${packerConfigFile}"
+            sh 'packer init build.json.pkr.hcl'
         }
     }
-}
-
-def fileExists(String filePath) {
-    return file(filePath).exists()
 }
 
 def formatPackerConfiguration() {
