@@ -18,6 +18,9 @@ pipeline {
     }
 
     stages {
+        stage('Build Config'){
+            sh 'packer -version'
+        }
         stage('Initialize Packer') {
             steps {
                 sh 'cd packer'
