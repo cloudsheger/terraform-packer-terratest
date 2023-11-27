@@ -2,7 +2,7 @@ pipeline {
     agent{
         label params.AGENT
     }
-    environments {
+    environment {
         DOCKER_LOGIN_TOKEN = 'dockerhub-jenkins-token'
         DOCKER_CRED = credentials("${DOCKER_LOGIN_TOKEN}")
         DOCKER_URL = 'docker.io'
@@ -18,7 +18,7 @@ pipeline {
     }*/
 
     stages {
-        stage ('Docker Build'){
+        stage('Docker Build'){
             agent {
                 docker {
                     label params.AGENT
@@ -26,7 +26,7 @@ pipeline {
                     image env.DOCKER_BUILD_IMAGE
                     registryUrl "https://${DOCKER_URL}"
                     registryCredentialsId env.DOCKER_CRED
-                    dir '.'
+                    //dir '.'
                     args '--entrypoint=\'\' -v /var/run/docker.sock:/var/run/docker.sock'
                 }
             }
