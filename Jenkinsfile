@@ -55,8 +55,9 @@ pipeline {
             cleanUpDockerImages()
         }
     }
+}
 
-    def initializePacker() {
+def initializePacker() {
         dir('packer') {
             script {
                 sh 'packer init build.json.pkr.hcl'
@@ -85,4 +86,3 @@ pipeline {
             }
         }
     }
-}
