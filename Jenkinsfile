@@ -1,13 +1,37 @@
 pipeline {
-    agent {
+    agent{
+        label params.AGENT
+    }
+    environments {
+        DOCKER_LOGIN_TOKEN = 'dockerhub-jenkins-token'
+        DOCKER_CRED = credentials("${DOCKER_LOGIN_TOKEN}")
+        DOCKER_URL = 'docker.io'
+        DOCKER_BUILD_IMAGE = 'cloudsheger/ami-builder:env'
+        CURRENT_TIMESTAMP = new Date().format("yyyy-MM-dd-HH-mm")
+    }
+    /*agent {
         dockerfile {
             filename 'Dockerfile'
             dir '.'
             args '--entrypoint=\'\' -v /var/run/docker.sock:/var/run/docker.sock'
         }
-    }
+    }*/
 
     stages {
+        stage ('Docker Build'){
+            agent {
+                docker {
+                    label params.AGENT
+                    alwaysPull true
+                    image env.DOCKER_BUILD_IMAGE
+                    registryUrl "https://${DOCKER_URL}"
+                    registryCredentialsId env.DOCKER_CRED
+                    dir '.'
+                    args '--entrypoint=\'\' -v /var/run/docker.sock:/var/run/docker.sock'
+                }
+            }
+
+        }
         stage('Initialize Packer') {
             steps {
                 initializePacker()
