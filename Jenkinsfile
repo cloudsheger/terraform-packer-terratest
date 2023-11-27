@@ -1,14 +1,15 @@
 pipeline {
     agent {
         docker {
-                        label params.AGENT
-                        alwaysPull true
-                        image env.DOCKER_BUILD_IMAGE
-                        registryUrl "https://${DOCKER_URL}"
-                        registryCredentialsId env.DOCKER_CRED
-                        args '--entrypoint=\'\' -v /var/run/docker.sock:/var/run/docker.sock'
-                    }
+            label params.AGENT
+            alwaysPull true
+            image env.DOCKER_BUILD_IMAGE
+            registryUrl "https://${DOCKER_URL}"
+            registryCredentialsId env.DOCKER_CRED
+            args '--entrypoint=\'\' -v /var/run/docker.sock:/var/run/docker.sock'
+        }
     }
+
     environment {
         DOCKER_LOGIN_TOKEN = 'dockerhub-jenkins-token'
         DOCKER_CRED = credentials("${DOCKER_LOGIN_TOKEN}")
@@ -18,15 +19,19 @@ pipeline {
     }
 
     stages {
-        stage('Build Config'){
-            steps{
-            sh 'packer -version'
+        stage('Build Config') {
+            steps {
+                sh 'packer -version'
             }
         }
+
         stage('Initialize Packer') {
             steps {
-                sh 'cd packer'
-                initializePacker()
+                dir('packer') {
+                    script {
+                        sh 'packer init build.json.pkr.hcl'
+                    }
+                }
             }
         }
 
@@ -34,8 +39,9 @@ pipeline {
 
         stage('Build AMI') {
             steps {
-                sh 'cd packer'
-                buildAMI('AWS_CREDENTIAL_IDS', 'AWS_REGION')
+                dir('packer') {
+                    buildAMI('AWS_CREDENTIAL_IDS', 'AWS_REGION')
+                }
             }
         }
     }
@@ -55,32 +61,22 @@ pipeline {
     }
 }
 
-def initializePacker() {
-        dir('packer') {
-            script {
-                sh 'packer init build.json.pkr.hcl'
-            }
+def buildAMI(awsAccessKeyIdCredentialId, awsRegionCredentialId) {
+    withCredentials([
+        [
+            $class: 'AmazonWebServicesCredentialsBinding',
+            accessKeyVariable: 'AWS_ACCESS_KEY_ID',
+            credentialsId: awsAccessKeyIdCredentialId,
+            secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
+        ]
+    ]) {
+        script {
+            sh """
+                aws configure set aws_access_key_id "\${AWS_ACCESS_KEY_ID}"
+                aws configure set aws_secret_access_key "\${AWS_SECRET_ACCESS_KEY}"
+                aws configure set default.region "\${awsRegionCredentialId}"
+                packer build -only=amazon-ebs.ubuntu-ami build.json.pkr.hcl
+            """
         }
     }
-
-    def buildAMI(awsAccessKeyIdCredentialId, awsRegionCredentialId) {
-        dir('packer') {
-            withCredentials([
-                [
-                    $class: 'AmazonWebServicesCredentialsBinding',
-                    accessKeyVariable: 'AWS_ACCESS_KEY_ID',
-                    credentialsId: awsAccessKeyIdCredentialId,
-                    secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
-                ]
-            ]) {
-                script {
-                    sh """
-                        aws configure set aws_access_key_id "\${AWS_ACCESS_KEY_ID}"
-                        aws configure set aws_secret_access_key "\${AWS_SECRET_ACCESS_KEY}"
-                        aws configure set default.region "\${awsRegionCredentialId}"
-                        packer build -only=amazon-ebs.ubuntu-ami build.json.pkr.hcl
-                    """
-                }
-            }
-        }
-    }
+}
