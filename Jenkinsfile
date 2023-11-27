@@ -1,6 +1,13 @@
 pipeline {
     agent {
-        label params.AGENT
+        docker {
+                        label params.AGENT
+                        alwaysPull true
+                        image env.DOCKER_BUILD_IMAGE
+                        registryUrl "https://${DOCKER_URL}"
+                        registryCredentialsId env.DOCKER_CRED
+                        args '--entrypoint=\'\' -v /var/run/docker.sock:/var/run/docker.sock'
+                    }
     }
     environment {
         DOCKER_LOGIN_TOKEN = 'dockerhub-jenkins-token'
@@ -11,24 +18,9 @@ pipeline {
     }
 
     stages {
-        stage('Docker Build') {
-            steps {
-                script {
-                    // Add the Docker configuration here
-                    docker {
-                        label params.AGENT
-                        alwaysPull true
-                        image env.DOCKER_BUILD_IMAGE
-                        registryUrl "https://${DOCKER_URL}"
-                        registryCredentialsId env.DOCKER_CRED
-                        args '--entrypoint=\'\' -v /var/run/docker.sock:/var/run/docker.sock'
-                    }
-                }
-            }
-        }
-
         stage('Initialize Packer') {
             steps {
+                sh 'cd packer'
                 initializePacker()
             }
         }
@@ -37,6 +29,7 @@ pipeline {
 
         stage('Build AMI') {
             steps {
+                sh 'cd packer'
                 buildAMI('AWS_CREDENTIAL_IDS', 'AWS_REGION')
             }
         }
