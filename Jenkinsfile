@@ -1,7 +1,8 @@
 pipeline {
 
     parameters {
-        string(name: 'DOCKER_BUILD_IMAGE', defaultValue: 'shegerlab23.jfrog.io/docker/ami-builder:env', description: 'Docker build image')
+        string(name: 'DOCKER_REPO', defaultValue: 'shegerlab23.jfrog.io', description: 'Docker build image')
+        string(name: 'DOCKER_BUILD_IMAGE', defaultValue: 'docker/ami-builder:env', description: 'Docker build image')
         string(name: 'DOCKER_URL', defaultValue: 'shegerlab23.jfrog.io', description: 'Docker registry URL')
         string(name: 'ZTPT_ACCOUNT', defaultValue: 'jfrog-api-token', description: 'JFrog API token credential ID')
     }
@@ -10,7 +11,7 @@ pipeline {
         docker {
             label params.AGENT
             alwaysPull true
-            image params.DOCKER_BUILD_IMAGE
+            image params.DOCKER_REPO/params.DOCKER_BUILD_IMAGE
             registryUrl "https://${params.DOCKER_URL}"
             registryCredentialsId params.ZTPT_ACCOUNT
             args '--entrypoint=\'\' -v /var/run/docker.sock:/var/run/docker.sock'
