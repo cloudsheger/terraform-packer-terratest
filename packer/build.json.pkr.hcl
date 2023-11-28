@@ -1,13 +1,7 @@
-# build.json.pkr.hcl
-
 packer {
   required_plugins {
     amazon = {
       source  = "github.com/hashicorp/amazon"
-      version = "~> 1"
-    }
-    docker = {
-      source  = "github.com/hashicorp/docker"
       version = "~> 1"
     }
   }
@@ -40,14 +34,14 @@ source "amazon-ebs" "ubuntu-ami" {
   ssh_username    = "ubuntu"
 }
 
-source "docker" "ubuntu-docker" {
-  changes = ["ENTRYPOINT [\"\"]"]
-  commit  = true
-  image   = "gruntwork/ubuntu-test:22.04"
-}
+// source "docker" "ubuntu-docker" {
+//   changes = ["ENTRYPOINT [\"\"]"]
+//   commit  = true
+//   image   = "gruntwork/ubuntu-test:22.04"
+// }
 
 build {
-  sources = ["source.amazon-ebs.ubuntu-ami", "source.docker.ubuntu-docker"]
+  sources = ["source.amazon-ebs.ubuntu-ami"]
 
   provisioner "shell" {
     inline = ["echo 'Sleeping for a few seconds to give Ubuntu time to boot up'", "sleep 30"]
@@ -61,11 +55,5 @@ build {
 
   provisioner "shell" {
     inline = ["/tmp/packer-docker-example/configure-sinatra-app.sh"]
-  }
-
-  post-processor "docker-tag" {
-    only       = ["ubuntu-docker"]
-    repository = "gruntwork/packer-docker-example"
-    tag        = "latest"
   }
 }
