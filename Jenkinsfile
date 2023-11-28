@@ -1,23 +1,21 @@
 pipeline {
+
+    parameters {
+        string(name: 'DOCKER_BUILD_IMAGE', defaultValue: 'shegerlab23.jfrog.io/docker/ami-builder:env', description: 'Docker build image')
+        string(name: 'DOCKER_URL', defaultValue: 'shegerlab23.jfrog.io', description: 'Docker registry URL')
+        string(name: 'ZTPT_ACCOUNT', defaultValue: 'jfrog-api-token', description: 'JFrog API token credential ID')
+    }
+
     agent {
         docker {
             label params.AGENT
             alwaysPull true
-            image env.DOCKER_BUILD_IMAGE
-            registryUrl "https://${DOCKER_URL}"
-            registryCredentialsId env.DOCKER_CRED
+            image params.DOCKER_BUILD_IMAGE
+            registryUrl "https://${params.DOCKER_URL}"
+            registryCredentialsId params.ZTPT_ACCOUNT
             args '--entrypoint=\'\' -v /var/run/docker.sock:/var/run/docker.sock'
         }
     }
-
-    environment {
-        DOCKER_LOGIN_TOKEN = 'dockerhub-jenkins-token'
-        DOCKER_CRED = credentials("${DOCKER_LOGIN_TOKEN}")
-        DOCKER_URL = 'docker.io'
-        DOCKER_BUILD_IMAGE = 'cloudsheger/ami-builder:env'
-        CURRENT_TIMESTAMP = new Date().format("yyyy-MM-dd-HH-mm")
-    }
-
     stages {
         stage('Build Config') {
             steps {
@@ -51,6 +49,13 @@ pipeline {
     }
 
     post {
+        success {
+            echo 'Packer commands executed successfully!'
+        }
+        failure {
+            error 'Packer commands failed!'
+        }
+
         cleanup {
             cleanWs()
             cleanUpDockerImages()
