@@ -39,15 +39,15 @@ pipeline {
       }
     }
 
-    /*stage('Validate') {
+    stage('Validate') {
       steps {
         script {
           packer.validate(template: 'build.json.pkr.hcl')
         }
       }
-    }*/
+    }
 
-   /* stage('Format') {
+   stage('Format') {
       steps {
         script {
           packer.fmt(
@@ -57,7 +57,7 @@ pipeline {
           )
         }
       }
-    }*/
+    }
 
     stage('Inspect') {
       steps {
