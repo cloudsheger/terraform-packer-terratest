@@ -1,3 +1,13 @@
+/ for dynamic retrieval
+library identifier: 'jenkins-devops-libs@master', retriever: modernSCM(
+  [$class: 'GitSCMSource',
+   remote: 'https://github.com/cloudsheger/jenkins-devops-libs.git'])
+// if added in Jenkins global config shared libraries
+//@Library('jenkins-devops-libs')_
+// if added in Jenkins global config shared libraries and the github api plugin is bugging out and slamming github with requests
+//library('jenkins-devops-libs')_
+
+
 pipeline {
 
     parameters {
@@ -18,80 +28,52 @@ pipeline {
         }
     }
     stages {
-        stage('Build Config') {
-            steps {
-                sh 'packer -version'
-            }
-        }
+    stage('Init') {
+      steps {
+        sh 'curl -L https://raw.githubusercontent.com/cloudsheger/terraform-packer-terratest/master/packer/build.json.pkr.hcl -o build.json.pkr.hcl'
+        //sh 'curl -L https://raw.githubusercontent.com/cloudsheger/ansible-terraform-packer/main/scripts/ubuntu.pkr.json -o ubuntu.pkr.json'
 
-        stage('Initialize Packer') {
-            steps {
-                initializePacker()
-            }
-        }
-
-        stage('Format Packer Configuration') {
-            steps {
-                formatPackerConfiguration()
-            }
-        }
-
-        stage('Validate Packer Configuration') {
-            steps {
-                validatePackerConfiguration()
-            }
-        }
-
-        stage('Build AMI') {
-            steps {
-                buildAMI('AWS_CREDENTIAL_IDS', 'AWS_REGION')
-            }
-        }
-    }
-}
-
-def initializePacker() {
-    dir('packer') {
         script {
-            sh 'packer init build.json.pkr.hcl'
+          packer.init(dir: '.')
         }
+      }
     }
-}
 
-def formatPackerConfiguration() {
-    dir('packer') {
+    /*stage('Validate') {
+      steps {
         script {
-            sh 'packer fmt build.json.pkr.hcl'
+          packer.validate(template: 'build.json.pkr.hcl')
         }
-    }
-}
+      }
+    }*/
 
-def validatePackerConfiguration() {
-    dir('packer') {
+   /* stage('Format') {
+      steps {
         script {
-            sh 'packer fmt -check=true -diff=true build.json.pkr.hcl && packer validate build.json.pkr.hcl'
+          packer.fmt(
+            check: true,
+            diff: true,
+            template: '.'
+          )
         }
+      }
+    }*/
+
+    stage('Inspect') {
+      steps {
+        script {
+          packer.inspect('build.json.pkr.hcl')
+        }
+      }
     }
+
+    stage('Build') {
+      steps {
+        script {
+          packer.build(template: 'build.json.pkr.hcl')
+        }
+      }
+    }
+  }
 }
 
-def buildAMI(awsAccessKeyIdCredentialId, awsRegionCredentialId) {
-    dir('packer') {
-        withCredentials([
-            [
-                $class: 'AmazonWebServicesCredentialsBinding',
-                accessKeyVariable: 'AWS_ACCESS_KEY_ID',
-                credentialsId: awsAccessKeyIdCredentialId,
-                secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
-            ]
-        ]) {
-            script {
-                sh """
-                    aws configure set aws_access_key_id "\${AWS_ACCESS_KEY_ID}"
-                    aws configure set aws_secret_access_key "\${AWS_SECRET_ACCESS_KEY}"
-                    aws configure set default.region "\${awsRegionCredentialId}"
-                    packer build -only=amazon-ebs.ubuntu-ami build.json.pkr.hcl
-                """
-            }
-        }
-    }
-}
