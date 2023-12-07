@@ -47,20 +47,6 @@ pipeline {
             }
         }
     }
-
-    post {
-        success {
-            echo 'Packer commands executed successfully!'
-        }
-        failure {
-            error 'Packer commands failed!'
-        }
-
-        cleanup {
-            cleanWs()
-            cleanUpDockerImages()
-        }
-    }
 }
 
 def initializePacker() {
