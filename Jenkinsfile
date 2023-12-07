@@ -8,7 +8,7 @@ pipeline {
 
     agent {
         docker {
-            label 'any'
+            label any
             alwaysPull true
             image params.DOCKER_BUILD_IMAGE
             registryUrl "https://${params.DOCKER_URL}"
