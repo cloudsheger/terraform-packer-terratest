@@ -46,7 +46,14 @@ pipeline {
         }
       }
     }
-
+    stage('Check Docker') {
+            steps {
+                script {
+                    echo "PATH: ${env.PATH}"
+                    sh 'docker version'
+                }
+            }
+        }  
    stage('Format') {
       steps {
         script {
