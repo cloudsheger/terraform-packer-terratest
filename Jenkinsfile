@@ -4,11 +4,12 @@ pipeline {
         string(name: 'DOCKER_BUILD_IMAGE', defaultValue: 'hadid.jfrog.io/docker/ami-builder:env', description: 'Docker build image')
         string(name: 'DOCKER_URL', defaultValue: 'hadid.jfrog.io', description: 'Docker registry URL')
         string(name: 'ZTPT_ACCOUNT', defaultValue: 'jfrog-cred.hadid', description: 'JFrog API token credential ID')
+        string(name: 'AGENT', defaultValue: 'docker', description: 'JFrog API token credential ID')
     }
 
     agent {
         docker {
-            label any
+            label params.AGENT
             alwaysPull true
             image params.DOCKER_BUILD_IMAGE
             registryUrl "https://${params.DOCKER_URL}"
