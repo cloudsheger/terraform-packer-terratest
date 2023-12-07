@@ -1,0 +1,108 @@
+@Library('jenkins-devops-libs') _
+
+pipeline {
+    agent any
+
+    environment {
+        // Move variables that are not configurable at runtime
+        JDK_HOME = tool 'jdk8'
+        MAVEN_HOME = tool 'Maven 3.9.5'
+        PATH = "${MAVEN_HOME}/bin:${JDK_HOME}/bin:${env.PATH}"
+
+        // Set the credentials for Sonar and Artifactory
+        sonar_token = credentials('SONAR_TOKEN_ID')
+        ARTIFACTORY_CREDENTIALS_ID = 'jfrog-cred.hadid'
+    }
+
+    parameters {
+
+        string(name: 'ProjectKey', defaultValue: 'shared-lib', description: 'SonarQube project key')
+        string(name: 'ProjectName', defaultValue: 'shared-lib', description: 'SonarQube project name')
+        string(name: 'SonarHostUrl', defaultValue: 'http://localhost:9000', description: 'SonarQube server URL')
+        string(name: 'GIT_REPO', defaultValue: 'https://github.com/cloudsheger/spring-petclinic-jenkins-pipeline-project.git', description: 'GitHub repo')
+        string(name: 'GIT_BRANCH', defaultValue: 'main', description: 'GitHub branch name')
+
+        string(name: 'dockerRegistry', defaultValue: 'hadid.jfrog.io', description: 'Artifactory Docker registry URL')
+        string(name: 'dockerRegistry_url', defaultValue: 'https://hadid.jfrog.io', description: 'Artifactory Docker registry URL')
+        string(name: 'dockerRepo', defaultValue: 'docker', description: 'Artifactory Docker repository name')
+        string(name: 'imageName', defaultValue: 'ami-builder', description: 'Docker image name')
+        string(name: 'BUILD_NUMBER', defaultValue: env.BUILD_NUMBER, description: 'Build number')
+        // Artifactory Related
+
+       // string(name: 'DOCKER_REGISTRY', defaultValue: 'cloudsheger.jfrog.io', description: 'Artifactory Docker registry URL')
+       // string(name: 'DOCKER_REPO', defaultValue: 'docker', description: 'Artifactory Docker repository name')
+       // string(name: 'IMAGE_NAME', defaultValue: 'petclinic', description: 'Docker image name')
+       // string(name: 'BUILD_NUMBER', defaultValue: env.BUILD_NUMBER, description: 'Build number')
+    }
+
+    stages {
+        stage('Cleanup Workspace') {
+            steps {
+                cleanWs()
+            }
+        }
+
+        stage('Checkout SCM') {
+            steps {
+                git branch: params.GIT_BRANCH, url: params.GIT_REPO
+            }
+        }
+
+        /*stage('SonarQube Code Analysis') {
+            steps {
+                withCredentials([string(credentialsId: 'SONAR_TOKEN_ID', variable: 'sonar_token')]) {
+                    sonarScanPipeline(
+                        projectKey: params.ProjectKey,
+                        projectName: params.ProjectName,
+                        sonarHostUrl: params.SonarHostUrl,
+                        sonarToken: "${sonar_token}"
+                    )
+                }
+            }
+        }*/
+
+        stage('Build Docker Image') {
+            steps {
+                buildDockerImage(
+                    DOCKER_REGISTRY: params.dockerRegistry,
+                    DOCKER_REPO: params.dockerRepo,
+                    IMAGE_NAME: params.imageName,
+                    BUILD_NUMBER: params.BUILD_NUMBER
+                )
+            }
+        }
+        stage('Push Docker Image') {
+            steps {
+                script {
+
+                    // Call the shared library function
+                    buildAndPushDockerImage([
+                        DOCKER_REGISTRY: params.dockerRegistry,
+                        DOCKER_REGISTRY_URL: params.dockerRegistry_url,
+                        DOCKER_REPO: params.dockerRepo,
+                        IMAGE_NAME: params.imageName,
+                        BUILD_NUMBER: params.BUILD_NUMBER,
+                        DOCKER_CREDS_ID: ARTIFACTORY_CREDENTIALS_ID
+                    ])
+                }
+            }
+        }
+
+        stage('Cleanup Docker Image') {
+            steps {
+                cleanupDockerImage(
+                    DOCKER_REGISTRY: params.dockerRegistry,
+                    DOCKER_REPO: params.dockerRepo,
+                    IMAGE_NAME:  params.imageName,
+                    BUILD_NUMBER: params.BUILD_NUMBER
+                )
+            }
+        }
+    }
+
+    post {
+        always {
+            cleanWs()
+        }
+    }
+}
