@@ -1,4 +1,5 @@
 pipeline {
+<<<<<<< Updated upstream
 
     parameters {
         string(name: 'DOCKER_BUILD_IMAGE', defaultValue: 'shegerlab23.jfrog.io/docker/ami-builder:env', description: 'Docker build image')
@@ -32,18 +33,58 @@ pipeline {
         stage('Format Packer Configuration') {
             steps {
                 formatPackerConfiguration()
+=======
+ agent {
+    dockerfile {
+        filename 'Dockerfile'
+        dir '.'
+        args '--entrypoint=\'\' -v /var/run/docker.sock:/var/run/docker.sock'
+    }
+  }
+
+    stages {
+        stage('Format Packer Configuration') {
+            steps {
+                script {
+                    sh 'packer fmt build.json'
+                }
+>>>>>>> Stashed changes
             }
         }
 
         stage('Validate Packer Configuration') {
             steps {
+<<<<<<< Updated upstream
                 validatePackerConfiguration()
+=======
+                script {
+                    sh 'packer validate build.json'
+                }
+>>>>>>> Stashed changes
             }
         }
 
         stage('Build AMI') {
             steps {
+<<<<<<< Updated upstream
                 buildAMI('AWS_CREDENTIAL_IDS', 'AWS_REGION')
+=======
+                withCredentials([
+                    [
+                        $class: 'AmazonWebServicesCredentialsBinding',
+                        accessKeyVariable: 'AWS_ACCESS_KEY_ID',
+                        credentialsId: 'AWSCRED',
+                        secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
+                    ]
+                ]) {
+                    script {
+                        sh '''
+                            cd packer
+                            packer build -var "aws_access_key=${AWS_ACCESS_KEY_ID}" -var "aws_secret_key=${AWS_SECRET_ACCESS_KEY}" -only=ubuntu-ami build.json
+                        '''
+                    }
+                }
+>>>>>>> Stashed changes
             }
         }
     }
@@ -55,6 +96,7 @@ pipeline {
         failure {
             error 'Packer commands failed!'
         }
+<<<<<<< Updated upstream
 
         cleanup {
             cleanWs()
@@ -106,5 +148,7 @@ def buildAMI(awsAccessKeyIdCredentialId, awsRegionCredentialId) {
                 """
             }
         }
+=======
+>>>>>>> Stashed changes
     }
 }
