@@ -1,4 +1,4 @@
-/ for dynamic retrieval
+// for dynamic retrieval
 library identifier: 'jenkins-devops-libs@master', retriever: modernSCM(
   [$class: 'GitSCMSource',
    remote: 'https://github.com/cloudsheger/jenkins-devops-libs.git'])
