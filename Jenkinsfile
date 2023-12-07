@@ -38,14 +38,6 @@ pipeline {
         }
       }
     }
-
-    stage('Validate') {
-      steps {
-        script {
-          packer.validate(template: 'build.json.pkr.hcl')
-        }
-      }
-    }
     stage('Check Docker') {
             steps {
                 script {
@@ -54,6 +46,13 @@ pipeline {
                 }
             }
         }  
+    stage('Validate') {
+      steps {
+        script {
+          packer.validate(template: 'build.json.pkr.hcl')
+        }
+      }
+    } 
    stage('Format') {
       steps {
         script {
