@@ -1,5 +1,4 @@
-# variables.pkr.hcl
-
-ami_name_base = "terratest-packer-docker-example"
-aws_region    = "us-east-1"
-instance_type = "t2.micro"
+ami_id = "ami-00a5b6ddc7a83f6e1"
+region = "us-east-1"
+instance_type = "t2-micro"
+app_name = "packer-test"
