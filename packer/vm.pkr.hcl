@@ -1,47 +1,50 @@
-variable "ami_id" {
-  type    = string
-  default = "ami-01e78c5619c5e68b4"
+packer {
+  required_plugins {
+    amazon = {
+      version = ">= 1.2.8"
+      source  = "github.com/hashicorp/amazon"
+    }
+  }
 }
-
 variable "region" {
   type    = string
-  default = "us-west-2"
+  default = "us-east-1"
 }
 
 variable "instance_type" {
   type    = string
   default = "t2.micro"
 }
-
-variable "app_name" {
+variable "ami_name" {
   type    = string
-  default = "httpd"
+  default = "ubuntu-packer"
 }
 
-locals {
-  app_name = var.app_name
-}
-
-source "amazon-ebs" "httpd" {
-  ami_name      = "PACKER-DEMO-${local.app_name}"
+source "amazon-ebs" "ubuntu" {
+  ami_name      = var.ami_name-{{timestamp}}
   instance_type = var.instance_type
   region        = var.region
-  source_ami    = var.ami_id
-  ssh_username  = "ec2-user"
-  tags = {
-    Env  = "DEMO"
-    Name = "PACKER-DEMO-${local.app_name}"
+  source_ami_filter {
+    filters = {
+      name                = "ubuntu/images/*ubuntu-jammy-22.04-amd64-server-*"
+      root-device-type    = "ebs"
+      virtualization-type = "hvm"
+    }
+    most_recent = true
+    owners      = ["099720109477"]
   }
+  ssh_username = "ubuntu"
 }
 
 build {
-  sources = ["source.amazon-ebs.httpd"]
+  name    = "learn-packer"
+  sources = ["source.amazon-ebs.ubuntu"]
 
   provisioner "shell" {
-    script = "script/app-init.sh"
+    script = "script/bootstrap.sh"
   }
 
   post-processor "shell-local" {
-    inline = ["echo foo"]
+    inline = ["echo hello-world"]
   }
 }
