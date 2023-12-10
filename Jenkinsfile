@@ -4,7 +4,7 @@
 pipeline {
 
     parameters {
-        string(name: 'DOCKER_BUILD_IMAGE', defaultValue: 'hadid.jfrog.io/docker/ami-builder:env', description: 'Docker build image')
+        string(name: 'DOCKER_BUILD_IMAGE', defaultValue: 'hadid.jfrog.io/docker/ami-builder:3', description: 'Docker build image')
         string(name: 'DOCKER_URL', defaultValue: 'hadid.jfrog.io', description: 'Docker registry URL')
         string(name: 'ZTPT_ACCOUNT', defaultValue: 'jfrog-api-token', description: 'JFrog API token credential ID')
         string(name: 'AGENT', defaultValue: 'docker', description: 'JFrog API token credential ID')
