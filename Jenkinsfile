@@ -80,8 +80,15 @@ pipeline {
 
     stage('Build') {
       steps {
-        dir('packer') {
-          withCredentials([
+        buildAMI('AWS_CREDENTIAL_IDS', 'AWS_REGION')
+      }
+    }
+  }
+}
+
+def buildAMI(awsAccessKeyIdCredentialId, awsRegionCredentialId) {
+    dir('packer') {
+        withCredentials([
             [
                 $class: 'AmazonWebServicesCredentialsBinding',
                 accessKeyVariable: 'AWS_ACCESS_KEY_ID',
@@ -97,9 +104,6 @@ pipeline {
                     packer.build(template: '.')
                 """
             }
-          }
         }
-      }
     }
-  }
 }
