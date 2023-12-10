@@ -1,12 +1,11 @@
 // for dynamic retrieval
-@Library('jenkins-devops-libs') _
-//library identifier: 'jenkins-devops-libs@master', retriever: modernSCM(
-  //[$class: 'GitSCMSource',
-  // remote: 'https://github.com/cloudsheger/jenkins-devops-libs.git'])
+library identifier: 'jenkins-devops-libs@master', retriever: modernSCM(
+  [$class: 'GitSCMSource',
+   remote: 'https://github.com/cloudsheger/jenkins-devops-libs.git'])
 // if added in Jenkins global config shared libraries
 //@Library('jenkins-devops-libs')_
 // if added in Jenkins global config shared libraries and the github api plugin is bugging out and slamming github with requests
-//@Library('jenkins-devops-libs@main')_
+//library('jenkins-devops-libs@master')_
 
 pipeline {
 
