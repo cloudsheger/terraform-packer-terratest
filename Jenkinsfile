@@ -1,4 +1,4 @@
-// for dynamic retrieval
+// Added Jenkins global config shared libraries
 @Library('jenkins-devops-libs@master')_
 /*library identifier: 'jenkins-devops-libs@master', retriever: modernSCM(
   [$class: 'GitSCMSource',
