@@ -47,7 +47,7 @@ pipeline {
 
         stage('Build AMI') {
             steps {
-                buildAMI('params.AWS_CREDENTIAL_IDS', 'params.AWS_REGION')
+                buildAMI('${params.AWS_CREDENTIAL_IDS}', '${params.AWS_REGION}')
             }
         }
     }
