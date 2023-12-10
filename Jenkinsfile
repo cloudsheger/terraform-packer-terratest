@@ -37,44 +37,54 @@ pipeline {
   stages {
     stage('Init') {
       steps {
-        script {
-          packer.init(dir: '.')
+        dir('packer') {
+          script {
+            packer.init(dir: '.')
+          }     
         }
       }
     }
     stage('Validate') {
       steps {
-        script {
-          packer.validate(template: '.')
-        }
+        dir('packer') {
+          script {
+            packer.validate(template: '.')
+          }
+        }  
       }
     }
 
    stage('Format') {
       steps {
-        script {
-          packer.fmt(
+        dir('packer') {
+          script {
+            packer.fmt(
             check: true,
             diff: true,
             template: '.'
-          )
+            )
+          }
         }
       }
     }
 
     stage('Inspect') {
       steps {
-        script {
-          packer.inspect('.')
-        }
+        dir('packer') {
+          script {
+            packer.inspect('.')
+          }
+        }  
       }
     }
 
     stage('Build') {
       steps {
-        script {
-          packer.build(template: '.')
-        }
+        dir('packer') {
+          script {
+            packer.build(template: '.')
+          }
+        }  
       }
     }
   }
