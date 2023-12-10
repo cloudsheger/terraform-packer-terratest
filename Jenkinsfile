@@ -5,7 +5,7 @@
 // if added in Jenkins global config shared libraries
 //@Library('jenkins-devops-libs')_
 // if added in Jenkins global config shared libraries and the github api plugin is bugging out and slamming github with requests
-@Library('jenkins-devops-libs@master')_
+@Library('jenkins-devops-libs@main')_
 
 pipeline {
 
