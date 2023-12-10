@@ -4,13 +4,6 @@ pipeline {
     agent any
 
     environment {
-        // Move variables that are not configurable at runtime
-        JDK_HOME = tool 'jdk8'
-        MAVEN_HOME = tool 'Maven 3.9.5'
-        PATH = "${MAVEN_HOME}/bin:${JDK_HOME}/bin:${env.PATH}"
-
-        // Set the credentials for Sonar and Artifactory
-        sonar_token = credentials('SONAR_TOKEN_ID')
         ARTIFACTORY_CREDENTIALS_ID = 'jfrog-cred.hadid'
     }
 
@@ -27,21 +20,9 @@ pipeline {
         string(name: 'dockerRepo', defaultValue: 'docker', description: 'Artifactory Docker repository name')
         string(name: 'imageName', defaultValue: 'ami-builder', description: 'Docker image name')
         string(name: 'BUILD_NUMBER', defaultValue: env.BUILD_NUMBER, description: 'Build number')
-        // Artifactory Related
-
-       // string(name: 'DOCKER_REGISTRY', defaultValue: 'cloudsheger.jfrog.io', description: 'Artifactory Docker registry URL')
-       // string(name: 'DOCKER_REPO', defaultValue: 'docker', description: 'Artifactory Docker repository name')
-       // string(name: 'IMAGE_NAME', defaultValue: 'petclinic', description: 'Docker image name')
-       // string(name: 'BUILD_NUMBER', defaultValue: env.BUILD_NUMBER, description: 'Build number')
     }
 
     stages {
-        stage('Cleanup Workspace') {
-            steps {
-                cleanWs()
-            }
-        }
-
         stage('Checkout SCM') {
             steps {
                 git branch: params.GIT_BRANCH, url: params.GIT_REPO
