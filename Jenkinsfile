@@ -1,12 +1,5 @@
 // Added Jenkins global config shared libraries
 @Library('jenkins-devops-libs@master')_
-/*library identifier: 'jenkins-devops-libs@master', retriever: modernSCM(
-  [$class: 'GitSCMSource',
-   remote: 'https://github.com/cloudsheger/jenkins-devops-libs.git'])*/
-// if added in Jenkins global config shared libraries
-//@Library('jenkins-devops-libs@master')_
-// if added in Jenkins global config shared libraries and the github api plugin is bugging out and slamming github with requests
-//library('jenkins-devops-libs@master')_
 
 pipeline {
 
@@ -15,8 +8,6 @@ pipeline {
         string(name: 'DOCKER_URL', defaultValue: 'hadid.jfrog.io', description: 'Docker registry URL')
         string(name: 'ZTPT_ACCOUNT', defaultValue: 'jfrog-api-token', description: 'JFrog API token credential ID')
         string(name: 'AGENT', defaultValue: 'docker', description: 'JFrog API token credential ID')
-        //string(name: 'AWS_REGION', defaultValue: 'us-east-1', description: 'JFrog API token credential ID')
-        //string(name: 'AWS_CREDENTIAL_IDS', defaultValue: 'AWS_CREDENTIAL_IDS', description: 'JFrog API token credential ID')
 
     }
     environment{
