@@ -44,7 +44,7 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                buildDockerImage(
+                docker.dockerBuild(
                     DOCKER_REGISTRY: params.dockerRegistry,
                     DOCKER_REPO: params.dockerRepo,
                     IMAGE_NAME: params.imageName,
@@ -57,7 +57,7 @@ pipeline {
                 script {
 
                     // Call the shared library function
-                    buildAndPushDockerImage([
+                    docker.dockerPush([
                         DOCKER_REGISTRY: params.dockerRegistry,
                         DOCKER_REGISTRY_URL: params.dockerRegistry_url,
                         DOCKER_REPO: params.dockerRepo,
