@@ -81,10 +81,24 @@ pipeline {
     stage('Build') {
       steps {
         dir('packer') {
-          script {
-            packer.build(template: '.')
+          withCredentials([
+            [
+                $class: 'AmazonWebServicesCredentialsBinding',
+                accessKeyVariable: 'AWS_ACCESS_KEY_ID',
+                credentialsId: awsAccessKeyIdCredentialId,
+                secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
+            ]
+        ]) {
+            script {
+                sh """
+                    aws configure set aws_access_key_id "\${AWS_ACCESS_KEY_ID}"
+                    aws configure set aws_secret_access_key "\${AWS_SECRET_ACCESS_KEY}"
+                    aws configure set default.region "\${awsRegionCredentialId}"
+                    packer.build(template: '.')
+                """
+            }
           }
-        }  
+        }
       }
     }
   }
