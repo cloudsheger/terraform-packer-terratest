@@ -9,15 +9,23 @@ library identifier: 'jenkins-devops-libs@master', retriever: modernSCM(
 
 pipeline {
 
-     parameters {
+    parameters {
         string(name: 'DOCKER_BUILD_IMAGE', defaultValue: 'hadid.jfrog.io/docker/ami-builder:env', description: 'Docker build image')
         string(name: 'DOCKER_URL', defaultValue: 'hadid.jfrog.io', description: 'Docker registry URL')
-        string(name: 'ZTPT_ACCOUNT', defaultValue: 'jfrog-cred.hadid', description: 'JFrog API token credential ID')
+        string(name: 'ZTPT_ACCOUNT', defaultValue: 'jfrog-api-token', description: 'JFrog API token credential ID')
+        string(name: 'AGENT', defaultValue: 'docker', description: 'JFrog API token credential ID')
+        //string(name: 'AWS_REGION', defaultValue: 'us-east-1', description: 'JFrog API token credential ID')
+        //string(name: 'AWS_CREDENTIAL_IDS', defaultValue: 'AWS_CREDENTIAL_IDS', description: 'JFrog API token credential ID')
+
+    }
+    environment{
+        AWS_CREDENTIAL_IDS = 'AWS_CREDENTIAL_IDS'
+        AWS_REGION = 'AWS_REGION'
     }
 
     agent {
         docker {
-            label any
+            label params.AGENT
             alwaysPull true
             image params.DOCKER_BUILD_IMAGE
             registryUrl "https://${params.DOCKER_URL}"
