@@ -51,10 +51,8 @@ pipeline {
     }
 
     post {
-        cleanup {
             cleanWs()
             cleanUpDockerImages()
-        }
     }
 }
 
