@@ -44,12 +44,14 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
+             script {
                 docker.dockerBuild(
                     DOCKER_REGISTRY: params.dockerRegistry,
                     DOCKER_REPO: params.dockerRepo,
                     IMAGE_NAME: params.imageName,
                     BUILD_NUMBER: params.BUILD_NUMBER
                 )
+             }
             }
         }
         stage('Push Docker Image') {
@@ -71,12 +73,14 @@ pipeline {
 
         stage('Cleanup Docker Image') {
             steps {
+             script {
                 cleanupDockerImage(
                     DOCKER_REGISTRY: params.dockerRegistry,
                     DOCKER_REPO: params.dockerRepo,
                     IMAGE_NAME:  params.imageName,
                     BUILD_NUMBER: params.BUILD_NUMBER
                 )
+             }
             }
         }
     }
