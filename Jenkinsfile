@@ -1,5 +1,5 @@
 // for dynamic retrieval
-library identifier: 'jenkins-devops-libs@master', retriever: modernSCM(
+//library identifier: 'jenkins-devops-libs@master', retriever: modernSCM(
   //[$class: 'GitSCMSource',
   // remote: 'https://github.com/cloudsheger/jenkins-devops-libs.git'])
 // if added in Jenkins global config shared libraries
