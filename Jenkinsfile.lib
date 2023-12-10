@@ -29,9 +29,6 @@ pipeline {
   stages {
     stage('Init') {
       steps {
-        sh 'curl -L https://raw.githubusercontent.com/cloudsheger/terraform-packer-terratest/master/packer/vm.pkr.hcl -o vm.pkr.hcl'
-        sh 'curl -L https://raw.githubusercontent.com/cloudsheger/terraform-packer-terratest/master/packer/variables.pkr.hcl -o variables.pkr.hcl'
-
         script {
           packer.init(dir: '.')
         }
@@ -40,7 +37,7 @@ pipeline {
     stage('Validate') {
       steps {
         script {
-          packer.validate(template: 'vm.pkr.hcl')
+          packer.validate(template: '.')
         }
       }
     }
@@ -60,7 +57,7 @@ pipeline {
     stage('Inspect') {
       steps {
         script {
-          packer.inspect('vm.pkr.hcl')
+          packer.inspect('.')
         }
       }
     }
@@ -68,7 +65,7 @@ pipeline {
     stage('Build') {
       steps {
         script {
-          packer.build(template: 'vm.pkr.hcl')
+          packer.build(template: '.')
         }
       }
     }
