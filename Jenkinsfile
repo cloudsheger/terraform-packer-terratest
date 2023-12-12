@@ -31,7 +31,7 @@ pipeline {
       steps {
         dir('packer') {
           script {
-            'ls -la'
+            sh 'ls -la'
             packer.init(dir: '.')
           }     
         }
