@@ -20,6 +20,7 @@ RUN apk --no-cache add \
     ansible \
     aws-cli \
     curl \
+    git \
     python3 \
     py3-pip \
     unzip \
@@ -45,8 +46,12 @@ RUN curl -LO https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terra
     && unzip '*.zip' -d /usr/local/bin \
     && rm *.zip
 
-# Create a non-root user with a home directory
-RUN addgroup -S jenkins && adduser -S -G jenkins jenkins
+# Create a non-root user with a home directory and add it to the wheel group
+RUN addgroup -S jenkins && adduser -S -G jenkins -G wheel jenkins
+
+# Create a working directory and give ownership to the jenkins user
+RUN mkdir -p /home/jenkins \
+    && chown -R jenkins:jenkins /home/jenkins
 
 # Set the working directory
 WORKDIR /home/jenkins
