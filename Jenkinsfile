@@ -77,12 +77,6 @@ pipeline {
       }
     }
   }
-  post {
-        always {
-            cleanWs()
-            //cleanUpDockerImages()
-        }
-  }
 }
 
 def buildAMI(awsAccessKeyIdCredentialId, awsRegionCredentialId) {
