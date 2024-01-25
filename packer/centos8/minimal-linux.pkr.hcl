@@ -102,6 +102,12 @@ variable "aws_subnet_id" {
   type        = string
   default     = null
 }
+variable "aws_security_groups" {
+  description = "List of security groups by name to add to this instance"
+  type        = list(string)
+  //default     = []
+  default       = null
+}
 
 variable "aws_temporary_security_group_source_cidrs" {
   description = "List of IPv4 CIDR blocks to be authorized access to the instance"
@@ -138,6 +144,7 @@ source "amazon-ebs" "aws" {
   ssh_timeout                           = "60m"
   ssh_username                          = var.spel_ssh_username
   subnet_id                             = var.aws_subnet_id
+  security_group_id                     = var.aws_security_groups
   tags                                  = { Name = "" } # Empty name tag avoids inheriting "Packer Builder"
   temporary_security_group_source_cidrs = var.aws_temporary_security_group_source_cidrs
   user_data_file                        = "${path.root}/userdata/userdata.cloud"
