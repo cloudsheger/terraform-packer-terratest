@@ -66,7 +66,7 @@ variable "aws_region" {
 variable "spel_identifier" {
   description = "Namespace that prefixes the name of the built images"
   type        = string
-  default = "T12-project-id"
+  default = "T12-project-id-test"
 }
 
 variable "spel_root_volume_size" {
@@ -144,7 +144,7 @@ source "amazon-ebs" "aws" {
   ssh_timeout                           = "60m"
   ssh_username                          = var.spel_ssh_username
   subnet_id                             = var.aws_subnet_id
-  security_group_id                     = var.aws_security_groups
+  //security_group_id                     = var.aws_security_groups
   tags                                  = { Name = "" } # Empty name tag avoids inheriting "Packer Builder"
   temporary_security_group_source_cidrs = var.aws_temporary_security_group_source_cidrs
   user_data_file                        = "${path.root}/userdata/userdata.cloud"
