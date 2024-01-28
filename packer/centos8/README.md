@@ -43,3 +43,7 @@ packer build .
 packer build -debug .
 ```
 
+```
+Security Hurdles
+The default behavior for Packer is to provision a keypair (for ssh access), instance, and security group on your behalf during the Packer build process. This all looks great on the surface, but take a closer look at the security group and you’ll notice that it opens up the instance to the public Internet which doesn’t feel very secure. The Packer build process can take anywhere from 5-30 minutes depending on the amount of custom configuration you put into your build. A more secure way to do this is by using a bastion instance to tunnel through to get to the private instance for configuration. The cost of using this method is additional configuration and a bastion instance to maintain. An even more secure way to accomplish this is by leveraging AWS’s Systems Manager Session Manager to connect into the instance for configuration. Session Manager is an amazing and underutilized tool for managing EC2 instances in multiple ways.
+```

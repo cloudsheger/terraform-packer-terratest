@@ -55,7 +55,7 @@ variable "aws_instance_type" {
 variable "aws_force_deregister" {
   description = "Force deregister an existing AMI if one with the same name already exists"
   type        = bool
-  default     = false
+  default     = true
 }
 
 variable "aws_region" {
@@ -109,26 +109,24 @@ variable "aws_security_groups" {
   default       = null
 }
 
-variable "aws_temporary_security_group_source_cidrs" {
-  description = "List of IPv4 CIDR blocks to be authorized access to the instance"
-  type        = list(string)
-  default     = ["0.0.0.0/0"]
-}
 
 
 locals { timestamp = regex_replace(timestamp(), "[- TZ:]", "") }
 
 source "amazon-ebs" "aws" {
   ami_groups                  = var.aws_ami_groups
-  ami_name                    = "${var.spel_identifier}-${source.name}-${var.spel_version}.x86_64-gp3"
+  ami_name                    = "linux-centos8-stream-${regex_replace(timestamp(), "[- TZ:]", "")}"
   ami_regions                 = var.aws_ami_regions
   ami_users                   = var.aws_ami_users
   associate_public_ip_address = true
-  communicator                = "ssh"
-  //deprecate_at                = local.aws_ami_deprecate_at
-  ena_support                 = true
   force_deregister            = var.aws_force_deregister
   instance_type               = var.aws_instance_type
+  
+  # provisioning connection parameters
+  communicator                = "ssh"
+  ssh_interface                = "session_manager"
+  iam_instance_profile         = "session_manager_packer"
+  ssh_pty                     = true
   launch_block_device_mappings {
     delete_on_termination = true
     device_name           = "/dev/sda1"
@@ -138,20 +136,24 @@ source "amazon-ebs" "aws" {
   max_retries                           = 20
   region                                = var.aws_region
   //sriov_support                         = true
-  ssh_interface                         = var.aws_ssh_interface
-  ssh_port                              = 22
-  ssh_pty                               = true
+  //ssh_interface                         = var.aws_ssh_interface
+  //ssh_port                              = 22
+  //ssh_pty                               = true
   ssh_timeout                           = "60m"
   ssh_username                          = var.spel_ssh_username
   subnet_id                             = var.aws_subnet_id
   //security_group_id                     = var.aws_security_groups
-  tags                                  = { Name = "" } # Empty name tag avoids inheriting "Packer Builder"
-  temporary_security_group_source_cidrs = var.aws_temporary_security_group_source_cidrs
-  user_data_file                        = "${path.root}/userdata/userdata.cloud"
+  tags = {
+    Environment     = "prod"
+    Name            = "linux-centos8-stream-${regex_replace(timestamp(), "[- TZ:]", "")}"
+    PackerBuilt     = "true"
+    PackerTimestamp = regex_replace(timestamp(), "[- TZ:]", "")
+    Service         = "deployer"
+  }
+
+  user_data_file    = "${path.root}/userdata/userdata.cloud"
 
   source_ami_filter {
-      //ami_description = format("latest", "CentOS Stream 8 AMI")
-     // name            = "minimal-centos-8stream-hvm"
       filters = {
         virtualization-type = "hvm"
         name                = var.aws_source_ami_filter_centos8stream_hvm.name
