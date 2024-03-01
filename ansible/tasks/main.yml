@@ -1,0 +1,3 @@
+---
+# tasks file for app_ansible
+- ansible.builtin.include_tasks: oraclelinux.yml

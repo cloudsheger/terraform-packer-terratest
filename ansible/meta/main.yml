@@ -1,0 +1,35 @@
+---
+galaxy_info:
+  role_name: ansible
+  namespace: cloudsheger
+  author: Jemal Mohammed cloudsheger
+  description: Ansible Role for EPEL Repository
+ # issue_tracker_url: https://github.com/christiangda/ansible-role-epel-repo
+  license: license GPLv3
+  company: No Company Name Provided
+  min_ansible_version: '2.9'
+
+  platforms:
+    - name: EL
+      versions:
+        - '6'
+        - '7'
+        - '8'
+        - '9'
+    - name: Amazon
+      versions:
+        - all
+
+  galaxy_tags:
+    - epel
+    - repository
+    - centos
+    - redhat
+    - system
+    - utilities
+    - amazon
+    - rhel
+    - rockylinux
+    - oraclelinux
+
+dependencies: []

@@ -1,0 +1,11 @@
+- name: Install required packages
+  ansible.builtin.dnf:
+    name:
+      - yum-utils
+      - device-mapper-persistent-data
+      - lvm2
+      - unzip
+      - zip
+      - kernel-devel
+      - git
+    state: present
