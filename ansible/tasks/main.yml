@@ -1,3 +1,5 @@
 ---
 # tasks file for app_ansible
 - ansible.builtin.include_tasks: oraclelinux.yml
+- ansible.builtin.include_tasks: dnf.yml
+- ansible.builtin.include_tasks: docker.yml

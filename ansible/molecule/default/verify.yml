@@ -1,10 +1,19 @@
 ---
-# This is an example playbook to execute Ansible tests.
+---
+# This playbook verifies Docker and Git installation.
 
 - name: Verify
   hosts: all
   gather_facts: false
   tasks:
-  - name: Example assertion
-    ansible.builtin.assert:
-      that: true
+    - name: Verify Docker is installed
+      ansible.builtin.assert:
+        that:
+          - ansible_facts.packages['docker-ce'] is defined
+          - ansible_facts.packages['docker-ce'].state == 'installed'
+
+    - name: Verify Git is installed
+      ansible.builtin.assert:
+        that:
+          - ansible_facts.packages['git'] is defined
+          - ansible_facts.packages['git'].state == 'installed'

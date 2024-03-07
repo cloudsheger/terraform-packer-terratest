@@ -1,0 +1,63 @@
+FROM oraclelinux:9
+
+LABEL maintainer="Jemal M"
+
+ENV container docker
+
+# Set environment variables
+ARG TERRAFORM_VERSION="1.6.5"
+ARG ANSIBLE_VERSION="2.15.0"
+ARG PACKER_VERSION="1.9.4"
+# Update packages to the latest version
+RUN dnf -y update \
+&& dnf clean all \
+&& dnf -y autoremove
+
+# Configure systemd.
+# See https://hub.docker.com/_/centos/ for details.
+RUN (cd /lib/systemd/system/sysinit.target.wants/; for i in *; do [ $i == systemd-tmpfiles-setup.service ] || rm -f $i; done); \
+rm -f /lib/systemd/system/multi-user.target.wants/*;\
+rm -f /etc/systemd/system/*.wants/*;\
+rm -f /lib/systemd/system/local-fs.target.wants/*; \
+rm -f /lib/systemd/system/sockets.target.wants/*udev*; \
+rm -f /lib/systemd/system/sockets.target.wants/*initctl*; \
+rm -f /lib/systemd/system/basic.target.wants/*;\
+rm -f /lib/systemd/system/anaconda.target.wants/*;
+
+RUN dnf -y install \
+    oracle-epel-release-el9 \
+    initscripts \
+    && dnf -y update \
+    && dnf -y install \
+    curl \
+    git \
+    python3.11 \
+    python3-pip \
+    unzip \
+    oracle-epel-release-el9 \
+    initscripts \
+    sudo \
+    && dnf -y autoremove \
+    && dnf clean all \
+    && rm -rf /var/cache/dnf/*
+# Download and install Terraform and Packer
+RUN curl -LO https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip \
+    && curl -LO https://releases.hashicorp.com/packer/${PACKER_VERSION}/packer_${PACKER_VERSION}_linux_amd64.zip \
+    && unzip '*.zip' -d /usr/local/bin \
+    && rm *.zip
+
+# aws session manager 
+RUN curl "https://s3.amazonaws.com/session-manager-downloads/plugin/latest/linux_64bit/session-manager-plugin.rpm" -o "session-manager-plugin.rpm" && \
+    dnf install -y ./session-manager-plugin.rpm
+
+# Upgrade pip.
+RUN pip3 install --upgrade pip
+
+# Install ansible.
+RUN pip3 install ansible
+# Create ansible directory and copy ansible inventory file.
+RUN mkdir /etc/ansible
+COPY ./hosts /etc/ansible/hosts
+
+VOLUME [ "/sys/fs/cgroup" ]
+CMD ["/usr/lib/systemd/systemd"]
