@@ -8,6 +8,7 @@ ENV container docker
 ARG TERRAFORM_VERSION="1.6.5"
 ARG ANSIBLE_VERSION="2.15.0"
 ARG PACKER_VERSION="1.9.4"
+
 # Update packages to the latest version
 RUN dnf -y update \
 && dnf clean all \
